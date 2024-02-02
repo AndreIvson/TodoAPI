@@ -14,6 +14,18 @@ namespace TodoAPI
             // Add services to the container.
 
             builder.Services.AddControllers();
+
+            //  CORS
+
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAnyOrigin",
+                    builder => builder
+                        .AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
+
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
@@ -38,6 +50,7 @@ namespace TodoAPI
 
             app.UseAuthorization();
 
+            app.UseCors("AllowAnyOrigin");
 
             app.MapControllers();
 

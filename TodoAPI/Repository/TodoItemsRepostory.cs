@@ -14,12 +14,15 @@ namespace TodoAPI.Repository
         }
         public async Task<List<TodoItemsModel>> GetAllTodoItems()
         {
-            return await _dbContext.TodoItems.ToListAsync();
+            List<TodoItemsModel> todoItems = await _dbContext.TodoItems.OrderBy(x => x.Id).ToListAsync();
+            return todoItems;
         }
 
         public async Task<TodoItemsModel> GetById(int id)
         {
-            return await _dbContext.TodoItems.FirstOrDefaultAsync(x => x.Id == id);
+            TodoItemsModel todoItem = await _dbContext.TodoItems.FindAsync(id);
+
+            return todoItem;
         }
 
         public async Task<TodoItemsModel> Post(TodoItemsModel todoItems)
@@ -32,14 +35,16 @@ namespace TodoAPI.Repository
 
         public async Task<TodoItemsModel> Put(TodoItemsModel todoItems, int id)
         {
-            TodoItemsModel todoItemsById = await GetById(id);
 
-            if(todoItemsById == null) 
+            TodoItemsModel todoItemsById = await _dbContext.TodoItems.FindAsync(id);
+
+            if (todoItemsById == null)
             {
-                throw new Exception($"Lista de tarefas para o ID:{id} não foi encontrada no banco de dados.");
+                return null;
             }
 
-            todoItemsById.Name = todoItems.Name;
+            todoItemsById.Title = todoItems.Title;
+            todoItemsById.Content = todoItems.Content;
             todoItemsById.IsComplete = todoItems.IsComplete;
 
             _dbContext.TodoItems.Update(todoItemsById);
@@ -49,15 +54,16 @@ namespace TodoAPI.Repository
         }
         public async Task<bool> Delete(int id)
         {
-            TodoItemsModel todoItemsById = await GetById(id);
+            TodoItemsModel todoItemsById = await _dbContext.TodoItems.FindAsync(id);
 
             if (todoItemsById == null)
             {
-                throw new Exception($"Lista de tarefas para o ID:{id} não foi encontrada no banco de dados.");
+                return false;
             }
 
             _dbContext.TodoItems.Remove(todoItemsById);
             await _dbContext.SaveChangesAsync();
+
             return true;
         }
     }

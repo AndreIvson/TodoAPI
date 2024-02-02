@@ -18,6 +18,12 @@ namespace TodoAPI.Controllers
         public async Task<ActionResult<List<TodoItemsModel>>> GetAllTodoItems() 
         {
             List<TodoItemsModel> todoItems = await _todoItemsRepository.GetAllTodoItems();
+
+            if (todoItems == null || todoItems.Count == 0)
+            {
+                return NotFound();
+            }
+
             return Ok(todoItems);
         }
 
@@ -25,7 +31,13 @@ namespace TodoAPI.Controllers
         public async Task<ActionResult<TodoItemsModel>> GetById(int id)
         {
             TodoItemsModel todoItems = await _todoItemsRepository.GetById(id);
-            return Ok(todoItems);
+
+            if(todoItems == null) 
+            {
+                return NotFound($"Lista de tarefas para o ID:{id} não foi encontrada no banco de dados.");
+            }
+
+            return Ok(todoItems.Modelo());
         }
 
         [HttpPost]
@@ -40,13 +52,24 @@ namespace TodoAPI.Controllers
         {
             todoItemsModel.Id = id;
             TodoItemsModel todoItems = await _todoItemsRepository.Put(todoItemsModel, id);
-            return Ok(todoItems);
+
+            if (todoItems == null)
+            {
+                return NotFound($"Lista de tarefas para o ID:{id} não foi encontrada no banco de dados.");
+            }
+
+            return Ok(todoItems.Modelo());
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult<TodoItemsModel>> Delete(int id)
         {
             bool deleted = await _todoItemsRepository.Delete(id);
+
+            if (!deleted) 
+            {
+                return NotFound($"Lista de tarefas para o ID:{id} não foi encontrada no banco de dados.");
+            }
             return Ok(deleted);
         }
 
