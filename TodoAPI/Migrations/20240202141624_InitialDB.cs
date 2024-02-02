@@ -16,7 +16,8 @@ namespace TodoAPI.Migrations
                 {
                     Id = table.Column<int>(type: "integer", nullable: false)
                         .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    Name = table.Column<string>(type: "character varying(255)", maxLength: 255, nullable: false),
+                    Title = table.Column<string>(type: "character varying(60)", maxLength: 60, nullable: false),
+                    Content = table.Column<string>(type: "character varying(800)", maxLength: 800, nullable: false),
                     IsComplete = table.Column<bool>(type: "boolean", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false, defaultValueSql: "CURRENT_TIMESTAMP")
                 },

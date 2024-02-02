@@ -12,7 +12,7 @@ using TodoAPI.Data;
 namespace TodoAPI.Migrations
 {
     [DbContext(typeof(TodoItemDbContext))]
-    [Migration("20240201144834_InitialDB")]
+    [Migration("20240202141624_InitialDB")]
     partial class InitialDB
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -32,6 +32,11 @@ namespace TodoAPI.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasMaxLength(800)
+                        .HasColumnType("character varying(800)");
+
                     b.Property<DateTime?>("CreatedAt")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -41,10 +46,10 @@ namespace TodoAPI.Migrations
                     b.Property<bool>("IsComplete")
                         .HasColumnType("boolean");
 
-                    b.Property<string>("Name")
+                    b.Property<string>("Title")
                         .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("character varying(255)");
+                        .HasMaxLength(60)
+                        .HasColumnType("character varying(60)");
 
                     b.HasKey("Id");
 
