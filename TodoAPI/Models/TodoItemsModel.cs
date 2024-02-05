@@ -14,7 +14,7 @@ namespace TodoAPI.Models
         [StringLength (800, MinimumLength = 5)]
         public string? Content { get; set; }
 
-        public Boolean IsComplete { get; set; }
+        public bool? IsComplete { get; set; } = false;
 
         public DateTime? CreatedAt { get; set; }
 
@@ -23,7 +23,8 @@ namespace TodoAPI.Models
             return new
             {
                 Title,
-                Content
+                Content,
+                IsComplete
             };
         }
     }
