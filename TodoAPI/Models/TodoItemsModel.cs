@@ -1,9 +1,11 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
 
 namespace TodoAPI.Models
 {
     public class TodoItemsModel
     {
+        [JsonIgnore]
         public int Id { get; set; }
 
         [Required]
@@ -16,9 +18,19 @@ namespace TodoAPI.Models
 
         public bool? IsComplete { get; set; } = false;
 
+        [JsonIgnore]
         public DateTime? CreatedAt { get; set; }
 
-        public object Modelo()
+        public object ModeloPost()
+        {
+            return new
+            {
+                Title,
+                Content   
+            };
+        }
+
+        public object ModeloPut()
         {
             return new
             {
