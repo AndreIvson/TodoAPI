@@ -40,11 +40,11 @@ namespace TodoAPI.Controllers
             return Ok(todoItems);
         }
 
-        [HttpPost]     
-        public async Task<ActionResult<TodoItemsModel>> Post([FromBody] TodoItemsModel todoItemsModel)
+        [HttpPost]
+        public async Task<ActionResult<TodoItemsDTO>> Post([FromBody] TodoItemsDTO todo)
         {
-            TodoItemsModel todoItems = await _todoItemsRepository.Post(todoItemsModel);
-            return Ok(todoItems.ModeloPost());
+            TodoItemsModel todoItemsModel = await _todoItemsRepository.Post(todo);
+            return Ok(todoItemsModel);
         }
 
         [HttpPut("{id}")]
@@ -58,7 +58,7 @@ namespace TodoAPI.Controllers
                 return NotFound($"O item com o ID:{id} não foi encontrado no banco de dados.");
             }
 
-            return Ok(todoItems.ModeloPut());
+            return Ok(todoItems);
         }
 
         [HttpDelete("{id}")]

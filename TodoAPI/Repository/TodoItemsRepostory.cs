@@ -25,12 +25,18 @@ namespace TodoAPI.Repository
             return todoItem;
         }
 
-        public async Task<TodoItemsModel> Post(TodoItemsModel todoItems)
+        public async Task<TodoItemsModel> Post(TodoItemsDTO todo)
         {
-            await _dbContext.TodoItems.AddAsync(todoItems);
+            TodoItemsModel todoModel = new TodoItemsModel
+            {
+                Title = todo.Title,
+                Content = todo.Content,
+            };
+
+            await _dbContext.TodoItems.AddAsync(todoModel);
             await _dbContext.SaveChangesAsync();
 
-            return todoItems;
+            return todoModel;
         }
 
         public async Task<TodoItemsModel> Put(TodoItemsModel todoItems, int id)

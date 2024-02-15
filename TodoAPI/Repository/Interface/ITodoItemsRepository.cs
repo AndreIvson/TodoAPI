@@ -6,7 +6,7 @@ namespace TodoAPI.Repository.Interface
     {
         Task<List<TodoItemsModel>> GetAllTodoItems();
         Task<TodoItemsModel> GetById(int id);
-        Task<TodoItemsModel> Post(TodoItemsModel todoItems);
+        Task<TodoItemsModel> Post(TodoItemsDTO todo);
         Task<TodoItemsModel> Put(TodoItemsModel todoItems, int id);
         Task<bool> Delete(int id);
     }
