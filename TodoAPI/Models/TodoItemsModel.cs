@@ -23,8 +23,16 @@ namespace TodoAPI.Models
         [Required]
         [StringLength(800, MinimumLength = 5)]
         public string? Content { get; set; }
-        public bool? IsComplete { get; set; } = false;
+        public bool IsCompleted { get; set; } = false;
         [JsonIgnore]
         public DateTime? CreatedAt { get; set; }
+        public List<Tag> Tags { get; set; } = new List<Tag>();
+    }
+    public class Tag
+    {
+        [JsonIgnore]
+        public int TagId { get; set; }
+        [StringLength(30, MinimumLength = 1)]
+        public string? TagName { get; set; }
     }
 }

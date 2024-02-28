@@ -12,7 +12,7 @@ namespace TodoAPI.Data.Map
             builder.Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Property(x => x.Title);
             builder.Property(x => x.Content);
-            builder.Property(x => x.IsComplete).HasDefaultValue(false);
+            builder.Property(x => x.IsCompleted).HasDefaultValue(false);
             builder.Property(x => x.CreatedAt).IsRequired().HasDefaultValueSql("CURRENT_TIMESTAMP");
         }
     }
