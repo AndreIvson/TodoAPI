@@ -12,8 +12,8 @@ using TodoAPI.Data;
 namespace TodoAPI.Migrations
 {
     [DbContext(typeof(TodoItemDbContext))]
-    [Migration("20240202141624_InitialDB")]
-    partial class InitialDB
+    [Migration("20240227131758_ImplementTags")]
+    partial class ImplementTags
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -23,6 +23,29 @@ namespace TodoAPI.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("TodoAPI.Models.Tag", b =>
+                {
+                    b.Property<int>("TagId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("TagId"));
+
+                    b.Property<string>("TagName")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)");
+
+                    b.Property<int?>("TodoItemsModelId")
+                        .HasColumnType("integer");
+
+                    b.HasKey("TagId");
+
+                    b.HasIndex("TodoItemsModelId");
+
+                    b.ToTable("Tag");
+                });
 
             modelBuilder.Entity("TodoAPI.Models.TodoItemsModel", b =>
                 {
@@ -43,8 +66,10 @@ namespace TodoAPI.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasDefaultValueSql("CURRENT_TIMESTAMP");
 
-                    b.Property<bool>("IsComplete")
-                        .HasColumnType("boolean");
+                    b.Property<bool>("IsCompleted")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false);
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -54,6 +79,18 @@ namespace TodoAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("TodoItems");
+                });
+
+            modelBuilder.Entity("TodoAPI.Models.Tag", b =>
+                {
+                    b.HasOne("TodoAPI.Models.TodoItemsModel", null)
+                        .WithMany("Tags")
+                        .HasForeignKey("TodoItemsModelId");
+                });
+
+            modelBuilder.Entity("TodoAPI.Models.TodoItemsModel", b =>
+                {
+                    b.Navigation("Tags");
                 });
 #pragma warning restore 612, 618
         }
