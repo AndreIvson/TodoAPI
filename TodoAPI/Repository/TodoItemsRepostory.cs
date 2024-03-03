@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TodoAPI.Data;
-using TodoAPI.Models;
+using TodoAPI.Entities;
 using TodoAPI.Repository.Interface;
 
 namespace TodoAPI.Repository
@@ -12,9 +12,9 @@ namespace TodoAPI.Repository
         {
             _dbContext = todoItemDbContext;
         }
-        public async Task<List<TodoItemsModel>> GetAllTodoItems()
+        public async Task<IEnumerable<TodoItem>> GetAllTodoItems()
         {
-            List<TodoItemsModel> todoItems = await _dbContext.TodoItems
+            List<TodoItem> todoItems = await _dbContext.TodoItems
                 .Include(item => item.Tags)
                 .OrderBy(x => x.Id)
                 .ToListAsync();
@@ -22,35 +22,31 @@ namespace TodoAPI.Repository
             return todoItems;
         }
 
-        public async Task<TodoItemsModel> GetById(int id)
+        public async Task<TodoItem?> GetById(int id)
         {
-            TodoItemsModel todoItem = await _dbContext.TodoItems
+            TodoItem? todoItem = await _dbContext.TodoItems
                 .Include(item => item.Tags)
                 .FirstOrDefaultAsync(item => item.Id == id);
 
             return todoItem;
         }
 
-        public async Task<TodoItemsModel> Post(TodoItemsDTO todo)
+        public async Task<TodoItem?> Create(TodoItem todoItem)
         {
-            TodoItemsModel todoModel = new TodoItemsModel
-            {
-                Title = todo.Title,
-                Content = todo.Content,
-            };
-
-            await _dbContext.TodoItems.AddAsync(todoModel);
+            await _dbContext.TodoItems.AddAsync(todoItem);
             await _dbContext.SaveChangesAsync();
-
-            return todoModel;
+            return todoItem;
         }
 
-        public async Task<TodoItemsModel> Put(TodoItemsModel todoItems, int id)
+        public async Task<TodoItem?> Update(TodoItem todoItems, int id)
         {
+            TodoItem? todoItemsById = await _dbContext
+                                                .TodoItems
+                                                .Include(t => t.Tags)
+                                                .FirstOrDefaultAsync(t => t.Id == id);
 
-            TodoItemsModel todoItemsById = await _dbContext.TodoItems.FindAsync(id);
-
-            if (todoItemsById == null)
+            // since c# 9, comparing "null" can be done using "is".
+            if (todoItemsById is null)
             {
                 return null;
             }
@@ -59,19 +55,13 @@ namespace TodoAPI.Repository
             todoItemsById.Content = todoItems.Content;
             todoItemsById.IsCompleted = todoItems.IsCompleted;
 
-            todoItemsById.Tags.Clear();
-
             foreach (var tag in todoItems.Tags)
             {
-                Tag existingTag = _dbContext.Set<Tag>().FirstOrDefault(t => t.TagName == tag.TagName);
+                bool tagAlreadyExists = todoItemsById.Tags.Contains(tag);
 
-                if (existingTag != null)
+                if (!tagAlreadyExists)
                 {
-                    todoItemsById.Tags.Add(existingTag);
-                }
-                else
-                {
-                    todoItemsById.Tags.Add(new Tag { TagName = tag.TagName });
+                    todoItemsById.AddTag(tag);
                 }
             }
 
@@ -80,32 +70,28 @@ namespace TodoAPI.Repository
 
             return todoItemsById;
         }
+
         public async Task<bool> Delete(int id)
         {
-            TodoItemsModel todoItemsById = await _dbContext.TodoItems
-                                                        .Include(t => t.Tags)
-                                                        .FirstOrDefaultAsync(t => t.Id == id);
+            TodoItem? todoItemsById = await _dbContext.TodoItems.FindAsync(id);
 
-            if (todoItemsById == null)
+            if (todoItemsById is not null)
             {
-                return false;
+                //Cascade delete of Tags configured on TodoItemsMap
+                _dbContext.TodoItems.Remove(todoItemsById);
+
+                try
+                {
+                    await _dbContext.SaveChangesAsync();
+                    return true;
+                }
+                catch (DbUpdateException ex)
+                {
+                    Console.WriteLine($"Erro ao excluir o item: {ex.Message}");
+                }
             }
 
-            todoItemsById.Tags.Clear();
-
-            _dbContext.TodoItems.Remove(todoItemsById);
-
-            try
-            {
-                await _dbContext.SaveChangesAsync();
-                return true;
-            }
-            catch (DbUpdateException ex)
-            {
-                Console.WriteLine($"Erro ao excluir o item: {ex.Message}");
-                return false;
-            }
+            return false;
         }
-
     }
 }

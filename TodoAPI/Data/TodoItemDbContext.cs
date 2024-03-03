@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Migrations;
 using TodoAPI.Data.Map;
-using TodoAPI.Models;
+using TodoAPI.Entities;
 
 namespace TodoAPI.Data
 {
@@ -12,11 +11,13 @@ namespace TodoAPI.Data
         {
         }
 
-        public DbSet<TodoItemsModel> TodoItems { get; set; }
+        public DbSet<TodoItem> TodoItems { get; set; }
+        public DbSet<Tag> Tags { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new TodoItemsMap());
+            modelBuilder.ApplyConfiguration(new TagsMap());
             base.OnModelCreating(modelBuilder);
         }
     }
